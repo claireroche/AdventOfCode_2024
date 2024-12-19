@@ -48,13 +48,8 @@ def initDistancesMap(maze, start):
 def getWeight(states, distMap, tmp_weight, pos1, pos2):
     weight = 1
     side = pos2[0]-pos1[0],pos2[1]-pos1[1]
-    print("pos1",pos1,"pos2",pos2)
-    if pos1 == (2,4) and pos2 == (1,4):
-        print("pos1 side:", states[pos1])
-        print("side:",side)
     if pos1 in tmp_weight:
         weight = 1
-        tmp_weight.pop(tmp_weight.index(pos1))
     elif side != states[pos1]:
             weight = 1001
     elif (pos2[0]+side[0],pos2[1]+side[1]) not in distMap:
@@ -100,7 +95,7 @@ def getPathCost(path, states, distMap):
         if states[path[i]] != states[path[i+1]]:
             #print("turn", path[i], path[i+1])
             cost += 1000
-    print(path[-1])
+    #print(path[-1])
     return cost
 
 def printMaze(maze,path,states):
@@ -135,11 +130,12 @@ def solve(input_file):
     # init previous positions map
     previousPos = {}
     tmp_weight = []
-    while len(freeCells) > 0:
-        print("==================")
+    pos = start
+    while len(freeCells) > 0 and pos!=end:
+        #print("==================")
         # get min position
         pos = getMinElement(freeCells, distMap, states)
-        print("Current pos:", pos, "distance:", distMap[pos], "state", states[pos])
+        #print("Current pos:", pos, "distance:", distMap[pos], "state", states[pos])
         # remove from heap
         freeCells.pop(freeCells.index(pos))
         # update distance map
@@ -147,11 +143,14 @@ def solve(input_file):
         distMap, states = updateAdjDistances(distMap, states, tmp_weight, pos, (pos[0]-1, pos[1]  ), previousPos)
         distMap, states = updateAdjDistances(distMap, states, tmp_weight, pos, (pos[0]  , pos[1]+1), previousPos)
         distMap, states = updateAdjDistances(distMap, states, tmp_weight, pos, (pos[0]  , pos[1]-1), previousPos)
-        print("distances:", distMap)
+        if pos in tmp_weight:
+            tmp_weight.pop(tmp_weight.index(pos))
+        #print("distances:", distMap)
     # build the path
     path = buildPath(previousPos, start, end)
-    printMaze(maze,path,states)
-    print(getPathCost(path, states, distMap))
+    #printMaze(maze,path,states)
+    #print(distMap)
+    #print(getPathCost(path, states, distMap))
     return getPathCost(path, states, distMap)
 
 # unit test
@@ -159,12 +158,10 @@ maze_test = read_datas("day16_data_test.txt")
 #print(maze_test)
 assert(getStart(maze_test) == (13,1))
 assert(getEnd(maze_test) == (1,13))
-#assert(solve("day16_data_test.txt")==7036)
-#assert(solve("day16_data_test2.txt")==11048)
-#assert(solve("day16_data_test3.txt")==21148)
-#print(solve("day16_data_test4.txt"))
-#assert(solve("day16_data_test4.txt")==21110)
+assert(solve("day16_data_test.txt")==7036)
+assert(solve("day16_data_test2.txt")==11048)
+assert(solve("day16_data_test3.txt")==21148)
 assert(solve("day16_data_test5.txt")==4013)
 
 # solve puzzle
-#print("Lowest score Reindeer can possibly get:", solve("day16_data.txt"))
+print("Lowest score Reindeer can possibly get:", solve("day16_data.txt"))
